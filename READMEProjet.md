@@ -28,8 +28,13 @@ categotyCake :
 
 Order : 
     propriété {
-        user_id,cake_id,created_at,statut
+        user_id,cake_id,created_at,statut,priceTTC,PriceHT,tva
     }
+
+Product_Order : 
+    propriété {
+        order_id,product_id,quantity
+}
 
 Comment : 
     propriété :{
@@ -38,7 +43,7 @@ Comment :
 
 Invoice : 
     propriété :{
-        user_id,cake_id,created_at
+        user_id,cake_id,created_at,priceTTC,PriceHT
     }
 
 
