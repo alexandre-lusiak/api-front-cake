@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Repository\UserRepository;
 use DateTime;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,15 +25,25 @@ class UserController extends ApiController
      private $validator;
      private $serializer;
      private $em;
-   
+     private $userRepo;
 
-     public function __construct(SerializerInterface $serializer, EntityManagerInterface $em, ValidatorInterface $validator)
+     public function __construct(SerializerInterface $serializer, EntityManagerInterface $em, ValidatorInterface $validator,UserRepository $userRepo)
      {
         $this->serializer = $serializer;
         $this->em = $em;
         $this->validator = $validator;
         $this->passwordEncorder = $validator;
+        $this->userRepo = $userRepo;
      }
+
+    #[Route('/users', name: 'get_user')] 
+    public function getUsers()
+    {
+        $users = $this->userRepo->findAll();
+
+        
+        return $this->setReponse(200,'ALL_USERS','GET USERS',$users,['get_user','list_user'],$this->serializer);
+    }
 
     #[Route('/user', name: 'app_user')]
     public function createUser( Request $request, UserPasswordHasherInterface $encoder)
