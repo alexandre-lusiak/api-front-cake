@@ -40,7 +40,6 @@ class UserController extends ApiController
     public function getUsers()
     {
         $users = $this->userRepo->findAll();
-
         
         return $this->setReponse(200,'ALL_USERS','GET USERS',$users,['get_user','list_user'],$this->serializer);
     }
