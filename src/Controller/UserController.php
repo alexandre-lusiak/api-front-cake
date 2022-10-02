@@ -37,7 +37,15 @@ class UserController extends ApiController
         $this->userRepo = $userRepo;
      }
 
-    #[Route('/register',methods:['POST'])]
+    #[Route('/users', name: 'get_user')] 
+    public function getUsers()
+    {
+        $users = $this->userRepo->findAll();
+        
+        return $this->setReponse(200,'ALL_USERS','GET USERS',$users,['get_user','list_user'],$this->serializer);
+    }
+
+    #[Route('/user', name: 'app_user')]
     public function createUser( Request $request, UserPasswordHasherInterface $encoder)
     {
         $data = json_decode($request->getContent(), true);
@@ -77,14 +85,5 @@ class UserController extends ApiController
       
     }
 
-    #[Route('/users', name: 'app_user')]
-    public function getUsers (UserRepository $userRepo)  
-    {
-        $users = $this->userRepo->findAll();
-
-        return $this->setReponse(200,'GET_USERS','All Users',$users,['get_user','list_user'],$this->serializer);
-
-
-
-    }
+    
 }
