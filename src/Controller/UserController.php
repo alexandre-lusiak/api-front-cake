@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Repository\UserRepository;
 use DateTime;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,28 +25,29 @@ class UserController extends ApiController
      private $validator;
      private $serializer;
      private $em;
+     private $userRepo;
    
 
-     public function __construct(SerializerInterface $serializer, EntityManagerInterface $em, ValidatorInterface $validator)
+     public function __construct(SerializerInterface $serializer, EntityManagerInterface $em, ValidatorInterface $validator, UserRepository $userRepo)
      {
         $this->serializer = $serializer;
         $this->em = $em;
         $this->validator = $validator;
         $this->passwordEncorder = $validator;
+        $this->userRepo = $userRepo;
      }
 
-    #[Route('/user', name: 'app_user')]
+    #[Route('/register',methods:['POST'])]
     public function createUser( Request $request, UserPasswordHasherInterface $encoder)
     {
         $data = json_decode($request->getContent(), true);
         
-
-        $email = $data["email"];
-        $password = $data["password"];
-        $firstName = $data["firstName"];
-        $lastName = $data["lastName"];
-        $phone = $data["phone"];
-        $password = $data["password"];
+        $password = $data['user']["password"];
+        $email = $data['user']["email"];
+        $firstName = $data['user']["firstName"];
+        $lastName = $data['user']["lastName"];
+        $phone = $data['user']["phone"];
+        
 
         $user = new User();
         $user->setEmail($email);
@@ -73,5 +75,16 @@ class UserController extends ApiController
         
         return $this->setReponse(200,'USER_CREATED','NEW USER CREATE',$user,['get_user','list_user'],$this->serializer);
       
+    }
+
+    #[Route('/users', name: 'app_user')]
+    public function getUsers (UserRepository $userRepo)  
+    {
+        $users = $this->userRepo->findAll();
+
+        return $this->setReponse(200,'GET_USERS','All Users',$users,['get_user','list_user'],$this->serializer);
+
+
+
     }
 }

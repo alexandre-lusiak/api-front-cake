@@ -53,7 +53,9 @@ class ApiController extends AbstractController
             ], 200);
         }
         return new Response($response, $code, [
-            'Content-Type' => 'application/json'
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin', '*'
+            
         ]);
    }
 
