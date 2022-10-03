@@ -10,10 +10,6 @@ security:
                 class: App\Entity\User
                 property: email
     firewalls:
-<<<<<<< HEAD
-    
-=======
->>>>>>> 1671351b1e1dd7db98e8b4873fe311cc048a2c8b
         login:
             pattern: ^/api/login
             stateless: true
@@ -26,13 +22,7 @@ security:
             pattern:   ^/api
             stateless: true
             jwt: ~
-<<<<<<< HEAD
-=======
 
-        # access_control:
-        #     - { path: ^/api/login, roles: PUBLIC_ACCESS }
-        #     - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
->>>>>>> 1671351b1e1dd7db98e8b4873fe311cc048a2c8b
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false

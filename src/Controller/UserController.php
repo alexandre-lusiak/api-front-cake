@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Adress;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use DateTime;
@@ -45,7 +46,7 @@ class UserController extends ApiController
         return $this->setReponse(200,'ALL_USERS','GET USERS',$users,['get_user','list_user'],$this->serializer);
     }
 
-    #[Route('/user', name: 'app_user')]
+    #[Route('/register', name: 'app_user')]
     public function createUser( Request $request, UserPasswordHasherInterface $encoder)
     {
         $data = json_decode($request->getContent(), true);
@@ -56,8 +57,21 @@ class UserController extends ApiController
         $lastName = $data['user']["lastName"];
         $phone = $data['user']["phone"];
         
+        $address = $data['user']['address'];
+        $country = $data['user']['country'];
+        $postalCode = $data['user']['postalCode'];
+        $city = $data['user']['city'];
+       
+        $adressUser = new Adress();
 
+        $adressUser->setAdress1($address);
+        $adressUser->setPostalCode($postalCode);
+        $adressUser->setCity($city);
+        $adressUser->setCountry($country);
+
+        
         $user = new User();
+        $user->setAdress($adressUser);
         $user->setEmail($email);
         $user->setFirstName($firstName);
         $user->setLastName($lastName);

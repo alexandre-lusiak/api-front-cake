@@ -51,6 +51,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['get_user','list_user'])]
     private ?Adress $adress = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class)]
