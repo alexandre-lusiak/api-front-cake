@@ -4,37 +4,46 @@ namespace App\Entity;
 
 use App\Repository\ProductRepository;
 use Doctrine\ORM\Mapping as ORM;
-
+use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['post_product','get_products'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['post_product','get_products'])]
     private ?string $name = null;
 
     #[ORM\Column]
+    #[Groups(['post_product','get_products'])]
     private ?float $priceHT = null;
 
     #[ORM\Column]
+    #[Groups(['post_product','get_products'])]
     private ?float $priceTTC = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['post_product','get_products'])]
     private ?float $tva = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['post_product','get_products'])]
     private ?int $nbPerson = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['post_product','get_products'])]
     private ?float $weight = null;
 
     #[ORM\Column]
+    #[Groups(['post_product','get_products'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'product')]
+    #[Groups(['post_product','get_products'])]
     private ?Category $category = null;
 
     public function getId(): ?int

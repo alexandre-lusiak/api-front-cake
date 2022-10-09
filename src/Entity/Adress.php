@@ -12,27 +12,27 @@ class Adress
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['get_user','list_user'])]
+    #[Groups(['get_user','post_user'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['get_user','list_user'])]
+    #[Groups(['get_user','post_user'])]
     private ?string $country = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['get_user','list_user'])]
+    #[Groups(['get_user','post_user'])]
     private ?string $city = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['get_user','list_user'])]
+    #[Groups(['get_user','post_user'])]
     private ?string $postalCode = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['get_user','list_user'])]
+    #[Groups(['get_user','post_user'])]
     private ?string $adress1 = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['get_user','list_user'])]
+    #[Groups(['get_user','post_user'])]
     private ?string $adress2 = null;
 
     public function getId(): ?int

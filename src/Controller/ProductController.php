@@ -37,7 +37,7 @@ class ProductController extends ApiController
 
 
 
-    #[Route('/product', name: 'app_product')]
+    #[Route('/cakes', name: 'app_product')]
     public function getProducts() 
     {
 
@@ -60,12 +60,11 @@ class ProductController extends ApiController
         $product->setPriceHT($data['priceHT']);
         $product->setPriceTTC($data['priceTTC']);
         $product->setTva($data['tva']);
+        $product->setNbPerson($data['nbPerson']);
+        $product->setWeight($data['weight']);
 
-
-        $product->setCategory($data['category']['id']);
-
-        $category = $this->catRepo->find($data['category']);
-        dd($data);
+        $category = $this->catRepo->find($data['category']['id']);
+    
         $product->setCategory($category);
         $errors = $this->validator->validate($product);
 
@@ -81,7 +80,41 @@ class ProductController extends ApiController
         $this->em->flush();
 
 
-        return $this->setReponse('200','POST Products ','POST USER SUCESS',$product,["get_products",'list_product'],$this->serializer);
+        return $this->setReponse('200','POST Products ','POST USER SUCESS',$product,['post_product'],$this->serializer);
     }
     
+    #[Route('/products/{id}', name: 'update_product', methods:['PUT'])]
+    public function updateProduct($id,Request $request)
+    {
+        $data = json_decode($request->getContent(),true);
+        $product = $this->productRepo->find($id);
+        if(!$product instanceof Product) return new JsonResponse('VA niké ta mere');
+        $product->setName($data["name"]);
+        $product->setCreatedAt(new DateTimeImmutable());
+        $product->setPriceHT($data['priceHT']);
+        $product->setPriceTTC($data['priceTTC']);
+        $product->setTva($data['tva']);
+        $product->setNbPerson($data['nbPerson']);
+        $product->setWeight($data['weight']);
+
+        $category = $this->catRepo->find($data['category']['id']);
+        
+        
+        $product->setCategory($category);
+        $errors = $this->validator->validate($product);
+        $errors->addAll($this->validator->validate($product));
+        if(!$errors){
+            return new JsonResponse("Vous ne pouvez pas accèder à cette requête", 200);
+        }
+        if($product) $errors->addAll($this->validator->validate($product));
+        dd($errors);
+       
+        if (count($errors) > 0) return $this->setReponse(400, 'UPDATE_PRODUCT_FAILURE', 'La création du produit a  échoué', $errors);
+       
+        $this->em->persist($product);
+        $this->em->flush();
+
+        return $this->setReponse('200','POST Products ','POST USER SUCESS',$product,['post_product'],$this->serializer);
+        
+    }
 }

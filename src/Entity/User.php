@@ -16,15 +16,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['get_user','list_user'])]
+    #[Groups(['get_user','post_user'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Groups(['get_user','list_user'])]
+    #[Groups(['get_user','post_user'])]
     private ?string $email = null;
 
     #[ORM\Column]
-    #[Groups(['get_user','list_user'])]
+    #[Groups(['get_user','post_user'])]
     private array $roles = [];
 
     /**
@@ -34,24 +34,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['get_user','list_user'])]
+    #[Groups(['get_user','post_user'])]
     private ?string $phone = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['get_user','list_user'])]
+    #[Groups(['get_user','post_user'])]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['get_user','list_user'])]
+    #[Groups(['get_user','post_user'])]
     private ?string $firstName = null;
 
     #[ORM\Column]
-    #[Groups(['get_user','list_user'])]
+    #[Groups(['get_user','post_user'])]
     private ?\DateTimeImmutable $registeredAt = null;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['get_user','list_user'])]
+    #[Groups(['get_user','post_user'])]
     private ?Adress $adress = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class)]

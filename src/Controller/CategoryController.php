@@ -58,7 +58,7 @@ class CategoryController extends ApiController
         $this->em->flush();
 
 
-        return $this->setReponse('200','POST category ','POST USER SUCESS',$category,["get_category"],$this->serializer);
+        return $this->setReponse('200','POST category ','POST USER SUCESS',$category,["post_category"],$this->serializer);
     }
 
 
