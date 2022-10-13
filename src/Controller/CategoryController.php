@@ -62,4 +62,13 @@ class CategoryController extends ApiController
     }
 
 
+    #[Route('/categories', name: 'app_categories')]
+    public function getCategories() 
+    {
+
+        $categories = $this->catRepo->findAll();
+
+        return $this->setReponse('200','GET ALL Category','GET Categories  SUCESS',$categories,["get_category"],$this->serializer);
+    }
+
 }

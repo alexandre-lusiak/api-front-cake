@@ -39,6 +39,7 @@ class FileController extends ApiController
             $uploadedFile = $request->files->get('file');
             
             $extension = $uploadedFile->guessExtension();
+            dd($extension);
     
            $name =  md5(uniqid());
            $fileName = $name.'.'.$extension;

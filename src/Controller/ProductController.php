@@ -37,7 +37,7 @@ class ProductController extends ApiController
 
 
 
-    #[Route('/cakes', name: 'app_product')]
+    #[Route('/cakes', name: 'app_product',methods:['GET'])]
     public function getProducts() 
     {
 
@@ -47,24 +47,27 @@ class ProductController extends ApiController
     }
 
 
-    #[Route('/products', name: 'add_product')]
+    #[Route('/addcake', name: 'add_product',methods:['POST'])]
     public function createProduct( Request $request) : Response
     {
 
         $data = json_decode($request->getContent(),true);
-
+       
         $product = new Product();
 
-        $product->setName($data["name"]);
+        $product->setName($data["cake"]["name"]);
         $product->setCreatedAt(new DateTimeImmutable());
-        $product->setPriceHT($data['priceHT']);
-        $product->setPriceTTC($data['priceTTC']);
-        $product->setTva($data['tva']);
-        $product->setNbPerson($data['nbPerson']);
-        $product->setWeight($data['weight']);
+        $product->setPriceHT(10);
+        $product->setPriceTTC($data["cake"]['priceTTC']);
+        $product->setTva(0,55);
+        $product->setNbPerson($data["cake"]['nbPerson']);
+        $product->setWeight($data["cake"]['weight']);
 
-        $category = $this->catRepo->find($data['category']['id']);
-    
+        $category = $this->catRepo->find($data["cake"]['category']);
+        
+        
+        $product->setFile($data["cake"]["file"]);
+
         $product->setCategory($category);
         $errors = $this->validator->validate($product);
 

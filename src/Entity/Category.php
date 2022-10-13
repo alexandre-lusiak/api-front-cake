@@ -13,15 +13,15 @@ class Category
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['post_category','post_product','get_products'])]
+    #[Groups(['post_category','post_product','get_products','get_category'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['post_category','post_product','get_products'])]
+    #[Groups(['post_category','post_product','get_products','get_category'])]
     private ?string $name = null;
 
     #[ORM\Column(length: 320, nullable: true)]
-    #[Groups(['post_category','post_product','get_products'])]
+    #[Groups(['post_category','post_product','get_products','get_category'])]
     private ?string $description = null;
 
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Product::class)]

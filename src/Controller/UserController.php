@@ -165,5 +165,15 @@ class UserController extends ApiController
         return $this->setReponse(200,'USER_UPDATE','USER UPDATE',$user,['get_user'],$this->serializer);
     }
 
+
+    #[Route('/current/user', name: 'current_user', methods:['GET']) ] 
+    public function getCurrenUser(): Response
+    {
+    
+        $user = $this->getUser();
+
+        return $this->setReponse(200,'USER_UPDATE','USER UPDATE',$user,['get_user'],$this->serializer);
+    }
+
     
 }

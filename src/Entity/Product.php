@@ -46,6 +46,9 @@ class Product
     #[Groups(['post_product','get_products'])]
     private ?Category $category = null;
 
+    #[ORM\ManyToOne(inversedBy: 'products')]
+    private ?File $file = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -143,6 +146,18 @@ class Product
     public function setCategory(?Category $category): self
     {
         $this->category = $category;
+
+        return $this;
+    }
+
+    public function getFile(): ?File
+    {
+        return $this->file;
+    }
+
+    public function setFile(?File $file): self
+    {
+        $this->file = $file;
 
         return $this;
     }
