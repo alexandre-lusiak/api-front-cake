@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Constraints\DateTime as ConstraintsDateTime;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-
+use Symfony\Component\Security\Core\Security;
 #[Route("/api")]
 class UserController extends ApiController
 {
@@ -49,22 +49,28 @@ class UserController extends ApiController
         return $this->setReponse(200,'ALL_USERS','GET USERS',$users,['get_user','list_users'],$this->serializer);
     }
 
+   
+
     #[Route('/register', name: 'add_user', methods:['POST'])]
     public function createUser( Request $request, UserPasswordHasherInterface $encoder)
     {
         $data = json_decode($request->getContent(), true);
+
+        $password = $data["password"];
+        $email = $data["email"];
+        $firstName = $data["firstName"];
+        $lastName = $data["lastName"];
+        $phone = $data["phone"];
         
-        $password = $data['user']["password"];
-        $email = $data['user']["email"];
-        $firstName = $data['user']["firstName"];
-        $lastName = $data['user']["lastName"];
-        $phone = $data['user']["phone"];
+        $address = $data['address'];
+        $country = $data['country'];
+        $postalCode = $data['postalCode'];
+        $city = $data['city'];
         
-        $address = $data['user']['address'];
-        $country = $data['user']['country'];
-        $postalCode = $data['user']['postalCode'];
-        $city = $data['user']['city'];
-       
+        $user = $this->userRepo->findOneBy(["email" => $email]);
+        if ($user instanceof User) {
+            return new JsonResponse("L'utilisateur existe déjà", 400);
+        }
         $adressUser = new Adress();
 
         $adressUser->setAdress1($address);
@@ -108,14 +114,14 @@ class UserController extends ApiController
 
         $data = json_decode($request->getContent(),true);
     
-        $email = $data['user']["email"];
-        $firstName = $data['user']["firstName"];
-        $lastName = $data['user']["lastName"];
-        $phone = $data['user']["phone"];
+        $email = $data["email"];
+        $firstName = $data["firstName"];
+        $lastName = $data["lastName"];
+        $phone = $data["phone"];
         
-        $adress1 = $data['user']['address']['adress1'];
-        $adress2 = $data['user']['address']['adress2'];
-        $country = $data['user']['address']['country'];
+        $adress1 = $data['address']['adress1'];
+        $adress2 = $data['address']['adress2'];
+        $country = $data['address']['country'];
         $postalCode = $data['user']['address']['postalCode'];
         $city = $data['user']['address']['city'];
         
@@ -156,23 +162,44 @@ class UserController extends ApiController
       
     }
 
-    #[Route('/user/email', name: 'update_user', methods:['GET']) ] 
-    public function GetUserByMail($email): Response
-    {
+    // #[Route('/user/email', name: 'update_user', methods:['GET']) ] 
+    // public function GetUserByMail($email): Response
+    // {
     
-        $user = $this->userRepo->getUserByMail($email);
+    //     $user = $this->userRepo->getUserByMail($email);
 
-        return $this->setReponse(200,'USER_UPDATE','USER UPDATE',$user,['get_user'],$this->serializer);
-    }
+    //     return $this->setReponse(200,'USER_UPDATE','USER UPDATE',$user,['get_user'],$this->serializer);
+    // }
 
+
+    // #[Route('/current/user', name: 'current_user', methods:['GET']) ] 
+    // public function getCurrenUser(): Response
+    // {
+    
+    //     $currentUser = $this->getUser();
+
+    //     $data = $this->serializer->serialize($currentUser, "json", [
+    //         'groups' => ['get_user']
+    //     ]);
+
+    //     return new Response($data, 200, [
+    //         'Content-Type' => 'application/json'
+    //     ]);
+    // }
 
     #[Route('/current/user', name: 'current_user', methods:['GET']) ] 
-    public function getCurrenUser(): Response
+    public function getCurrentUser()
     {
-    
         $user = $this->getUser();
 
-        return $this->setReponse(200,'USER_UPDATE','USER UPDATE',$user,['get_user'],$this->serializer);
+        $data = $this->serializer->serialize($user, "json", [
+                    'groups' => ['get_user']
+                ]);
+        
+                return new Response($data, 200, [
+                    'Content-Type' => 'application/json'
+                ]);
+
     }
 
     
