@@ -21,7 +21,7 @@ class CommentController extends ApiController
     public function index(): Response
     {
         return $this->render('comment/index.html.twig', [
-            'controller_name' =>  'CommentController',
+            'controller_name' => 'CommentController',
         ]);
        }
 
