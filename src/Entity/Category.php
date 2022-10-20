@@ -16,7 +16,7 @@ class Category
     #[Groups(['post_category','post_product','get_products','get_category'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: false)]
     #[Groups(['post_category','post_product','get_products','get_category'])]
     private ?string $name = null;
 

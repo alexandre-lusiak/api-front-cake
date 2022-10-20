@@ -119,30 +119,30 @@ class UserController extends ApiController
         $lastName = $data["lastName"];
         $phone = $data["phone"];
         
-        $adress1 = $data['address']['adress1'];
-        $adress2 = $data['address']['adress2'];
-        $country = $data['address']['country'];
-        $postalCode = $data['user']['address']['postalCode'];
-        $city = $data['user']['address']['city'];
+        $adress1 = $data['address'];
+        $country = $data['country'];
+        $postalCode = $data['postalCode'];
+        $city = $data['city'];
         
         $user = $this->userRepo->find($id);
-    
+       
+        if(!$user instanceof User) return new JsonResponse("le client n'existe pas"); 
+      
         $user->setEmail($email);
         $user->setFirstName($firstName);
         $user->setLastName($lastName);
         $user->setPassword($lastName);
         $user->setPhone($phone);
 
-    
-        $adressUser = $this->addressRepo->find($data['user']['address']['id']);
+        $adress = $user->getAdress();
 
-        $adressUser->setAdress1($adress1);
-        $adressUser->setAdress2($adress2);
-        $adressUser->setPostalCode($postalCode);
-        $adressUser->setCity($city);
-        $adressUser->setCountry($country);
+        $adress->setAdress1($adress1);
+        $adress->setPostalCode($postalCode);
+        $adress->setCity($city);
+        $adress->setCountry($country);
 
-        $user->setAdress($adressUser);
+        $user->setAdress($adress);
+        
 
 
         $errors = $this->validator->validate($user);
@@ -201,6 +201,19 @@ class UserController extends ApiController
                 ]);
 
     }
+
+    #[Route('/delete/user/{id}', name: 'delete_user', methods:['DELETE']) ] 
+    public function deleteUser($id)
+    {
+        $user = $this->userRepo->find($id);
+
+        $this->em->remove($user);
+        $this->em->flush();
+        return new JsonResponse("L'utilisateur a été supprimé avec succès");
+
+    }
+
+
 
     
 }

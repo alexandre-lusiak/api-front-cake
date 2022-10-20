@@ -49,6 +49,10 @@ class Product
     #[ORM\ManyToOne(inversedBy: 'products')]
     private ?File $file = null;
 
+    #[ORM\Column(nullable: true)]
+    #[Groups(['post_product','get_products'])]
+    private ?bool $isActif = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -158,6 +162,18 @@ class Product
     public function setFile(?File $file): self
     {
         $this->file = $file;
+
+        return $this;
+    }
+
+    public function isIsActif(): ?bool
+    {
+        return $this->isActif;
+    }
+
+    public function setIsActif(?bool $isActif): self
+    {
+        $this->isActif = $isActif;
 
         return $this;
     }
