@@ -140,7 +140,7 @@ class ProductController extends ApiController
         $product = $this->productRepo->find($id);
         if(!$product instanceof Product) return new JsonResponse("Le produit n'existe pas");
         $product->setFile($file);
-        return $this->setReponse('200','GET  Product','GET product  SUCESS',$product,["get_products"],$this->serializer);
+        return $this->setReponse('200', 'GET  Product','GET product  SUCESS',$product,["get_products"],$this->serializer);
     }
 
 
