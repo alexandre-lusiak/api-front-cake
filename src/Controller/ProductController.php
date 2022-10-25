@@ -2,10 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\CakeLike;
 use App\Entity\File;
 use App\Entity\Product;
+use App\Repository\CakeLikeRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
+use App\Repository\UserRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -155,6 +158,57 @@ class ProductController extends ApiController
 
         return $this->setReponse('200','delete  Product','Delete product  SUCESS',$product,["get_products"],$this->serializer);
     }
+
+    #[Route('/user/like/{id}', name: 'like_product',methods:['POST'])]
+    public function like($id,ProductRepository $productRepo, CakeLikeRepository $likeRepo , EntityManagerInterface $em, Request $request, UserRepository $userRepo, ) :Response
+    {
+       $data = json_decode($request->getContent(),true);
+      
+            /*****************************/ 
+            /* on recupere l'utilisateur */
+            /*****************************/       
+        $user= $userRepo->find($data['id_user']);
+            /*******************************************/ 
+            /* logic to see if the user is logged in   */ 
+            /* and if he has already liked the article */
+            /*******************************************/
+            $product =  $productRepo->find($id);
+            /* if the user is not logged in*/    
+        // if(!$user) {
+        //     return $this->json([
+        //         'code'=>403,
+        //         'message'=> "Vous devez etre connecté"
+        //         ],403);
+        // }
+            /* case where the article is already likedé*/
+        
+          
+        if($product->likedByUser($user)) {
+            $like =$likeRepo->findOneBy([
+                'product'=>$product,
+                'user'=>$user
+                ]); 
+            $countLike =count($like->getProduct()->getCakeLikes());
+            $em->remove($like);
+            $em->flush();
+            
+            return $this->setReponse('200','delete like','delete like sucess',$countLike,["get_products","get_like"],$this->serializer);
+        }
+             /* case where the user has not yet like*/
+        else {
+            $like = new CakeLike();
+            $like->setProduct($product);
+            $like->setUser($user);
+            $em->persist($like);
+            $em->flush();
+            $countLike =count($like->getProduct()->getCakeLikes());
+        
+            return $this->setReponse('200','add like','add like sucess',$countLike,["get_products","get_like"],$this->serializer);
+        }
+
+        
+        
+    }                        
 
 
 }

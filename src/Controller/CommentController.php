@@ -3,11 +3,16 @@
 namespace App\Controller;
 
 use App\Entity\Comment;
+use App\Entity\Product;
+use App\Entity\User;
+use App\Repository\CommentRepository;
+use App\Repository\ProductRepository;
 use App\Repository\UserRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Email;
@@ -18,7 +23,7 @@ use Symfony\Component\Mailer\MailerInterface;
 class CommentController extends ApiController
 {
     #[Route('/comment', name: 'app_comment')]
-    public function index(): Response
+    public function getComment(): Response
     {
         return $this->render('comment/index.html.twig', [
             'controller_name' => 'CommentController',
@@ -27,49 +32,41 @@ class CommentController extends ApiController
 
 
 
-       #[Route('/comment/send', name: 'send_comment',methods:['POST'])]
-    public function SendComment(Request $request ,UserRepository $userRepo, EntityManagerInterface $em , SerializerInterface $serializer,MailerInterface $mailer) : Response
+       #[Route('/comment/user/{id}', name: 'comment',methods:['POST'])]
+    public function SendComment($id,Request $request ,UserRepository $userRepo, ProductRepository $productRepo, EntityManagerInterface $em , SerializerInterface $serializer) : Response
     {
 
         $data = json_decode( $request->getContent() ,true);
 
         $comment = new Comment();
 
-        $email = $data["comment"]['email'];
+        $content = $data['content'];
         
-        $content = $data["comment"]['content'];
-        
-        $pesudo = $data["comment"]['pseudo'];
-
-        $user = $userRepo->find(2);
+        $idCake = $data["id"];
+        $product = $productRepo->find($idCake);
+        if(!$product instanceof Product) return new JsonResponse("ce produit n'existe pas");
+        $user = $userRepo->find( $id );
+        if(!$user instanceof User) return new JsonResponse("cet utilisateur n'existe pas");
         $comment->setUser($user);
+        $comment->setProduct($product);
         $comment->setContent($content);
-        $comment->setPseudo($pesudo);
         $comment->setCreatedAt(new DateTimeImmutable('now'));
 
         $em->persist($comment);
-       $em->flush();
-
-       try {
-           $email = (new TemplatedEmail())
-           ->from($email)
-           ->to("alexandre.lusiak@gmail.com")
-           ->subject('Commentaire')
-           ->htmlTemplate('mails/comment.twig')
-           
-       
-   
-       ->context([
-           $comment
-       ]);
-       $mailer->send($email);
-       } catch (\Throwable $th) {
-          
-       }
-
-   dd($email);
+        $em->flush();
 
         return $this->setReponse('200','POST comment ','POST comment SUCESS',$comment,["post_comment"],$serializer);
 
+    }
+
+
+    #[Route('/comment/cake/{id}', name: 'get_comment')]
+    public function getCategories($id,ProductRepository $productRepo,SerializerInterface $serializer) 
+    {
+
+        $product = $productRepo->find($id);
+      $comment =  $product->getComments();
+
+        return $this->setReponse('200','GET ALL Category','GET Categories  SUCESS',$comment,["get_comment"],$serializer);
     }
 }

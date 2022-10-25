@@ -9,11 +9,15 @@ use App\Repository\UserRepository;
 use DateTime;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Security\User\JWTUserInterface;
+use Namshi\JOSE\JWT;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
@@ -213,6 +217,80 @@ class UserController extends ApiController
 
     }
 
+
+    #[Route('/contact', name: 'contact', methods:['POST']) ] 
+    public function contact(Request $request ,MailerInterface $mailer )
+    {
+
+        $data =  json_decode($request->getContent(), true);
+
+        
+        try {
+            $emailUser =$data["email"];
+            $lastName = $data["lastName"];
+            $firstName = $data["firstName"];
+            $phone = $data["phone"];
+            $city = $data["city"];
+            $content = $data["content"];
+    
+            $email = ( new TemplatedEmail())
+            ->from($emailUser)
+            ->to("contact.front-kick@gmail.com")
+            ->subject('Contact')
+            ->html('mails/comment.twig')
+         
+        ->context([
+           "lastName" => $lastName,
+           "firstName" => $firstName,
+           "phone" => $phone,
+           "city" => $city,
+           "content" => $content,
+        ]);
+       
+        $mailer->send($email);
+       
+        return $this->setReponse(200,'SEND_MAIL','MAILS SEND',$data,[],$this->serializer);
+            //code...
+        } catch (\Throwable $th) {
+            return new JsonResponse (400,'SEND_MAIL ERROR');
+        }
+     
+    }
+
+    #[Route('/forgot/password', name: 'reset', methods:['POST']) ] 
+    public function ForgotPassword(Request $request,UserRepository $userRepo, EntityManagerInterface $em , MailerInterface $mailer ) 
+    {
+        $data = json_decode($request->getContent(),true);
+
+        $emailUser = $data['user_mail']['email'];
+
+        $user = $userRepo->findOneByEmail(['email' =>$emailUser]);
+
+        if(!$user) return new JsonResponse("cet utilisateur n'existe pas");
+         
+        $user->setResetToken(sha1(uniqid()));
+       
+        $em->persist($user);
+
+        $em->flush();
+
+     
+
+        $email = ( new TemplatedEmail())
+        ->from($emailUser)
+        ->to("contact.front-kick@gmail.com")
+        ->subject('Contact')
+        ->html('mails/comment.twig')
+     
+    ->context([
+       
+    ]);
+   
+    $mailer->send($email);
+   
+    return $this->setReponse(200,'SEND_MAIL','MAILS SEND',$data,[],$this->serializer);
+
+    }
 
 
     

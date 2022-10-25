@@ -16,7 +16,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['get_user','post_user'])]
+    #[Groups(['get_user','post_user','post_comment','get_products','get_comment'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
@@ -38,11 +38,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $phone = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['get_user','post_user'])]
+    #[Groups(['get_user','post_user','get_comment','get_products'])]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['get_user','post_user'])]
+    #[Groups(['get_user','post_user','get_comment','get_products'])]
     private ?string $firstName = null;
 
     #[ORM\Column]
@@ -57,11 +57,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class)]
     private Collection $comments;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: CakeLike::class)]
+    #[Groups(['get_user'])]
+    private Collection $cakeLikes;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $resetToken = null;
+
+
 
     public function __construct()
     {
         $this->product = new ArrayCollection();
         $this->comments = new ArrayCollection();
+        $this->cakeLikes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -223,6 +232,49 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, CakeLike>
+     */
+    public function getCakeLikes(): Collection
+    {
+        return $this->cakeLikes;
+    }
+
+    public function addCakeLike(CakeLike $cakeLike): self
+    {
+        if (!$this->cakeLikes->contains($cakeLike)) {
+            $this->cakeLikes->add($cakeLike);
+            $cakeLike->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCakeLike(CakeLike $cakeLike): self
+    {
+        if ($this->cakeLikes->removeElement($cakeLike)) {
+            // set the owning side to null (unless already changed)
+            if ($cakeLike->getUser() === $this) {
+                $cakeLike->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getResetToken(): ?string
+    {
+        return $this->resetToken;
+    }
+
+    public function setResetToken(?string $resetToken): self
+    {
+        $this->resetToken = $resetToken;
+
+        return $this;
+    }
+
 
     
 }

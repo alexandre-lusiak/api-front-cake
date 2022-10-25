@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\File;
 use App\Repository\FileRepository;
+use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,8 +29,8 @@ class FileController extends ApiController
       
     }
 
-    #[Route('/upload/file', name: 'add_file' , methods:['POST']) ]
-    public function uploadFile( Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer): Response
+    #[Route('/upload/file/{id}', name: 'add_file' , methods:['POST']) ]
+    public function uploadFile($id, Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer, ProductRepository $productRepo): Response
     {
         
         
@@ -39,16 +40,20 @@ class FileController extends ApiController
             $uploadedFile = $request->files->get('file');
             
             $extension = $uploadedFile->guessExtension();
-            dd($extension);
+        
     
            $name =  md5(uniqid());
            $fileName = $name.'.'.$extension;
            $uploadedFile->move($this->getParameter('files_directory'), $fileName);
            $file->setFilePath($fileName);
            $file->setCaption($request->get("caption"));
-    
+        
+           $product = $productRepo->find($id);
+           $file->addProduct($product);           
            $entityManager->persist($file);
            $entityManager->flush();
+
+
     
            $data = $serializer->serialize($file, "json", [
                 'groups' => ['get_file']
