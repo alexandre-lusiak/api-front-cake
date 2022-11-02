@@ -7,16 +7,19 @@ use App\Entity\File;
 use App\Entity\Product;
 use App\Repository\CakeLikeRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\FileRepository;
 use App\Repository\ProductRepository;
 use App\Repository\UserRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api')]
@@ -62,13 +65,18 @@ class ProductController extends ApiController
 
 
     #[Route('/addcake', name: 'add_product',methods:['POST'])]
-    public function createProduct( Request $request) : Response
+    public function createProduct( Request $request,FileRepository $fileRepo) : Response
     {
 
         $data = json_decode($request->getContent(),true);
-       
+     
         $product = new Product();
+        
+        $file = $fileRepo->find($data['file']); 
 
+        if(!$file instanceof File) return new JsonResponse("Erreur l'image nexiste pas");
+       
+        $product->setFile($file);
         $product->setName($data["name"]);
         $product->setCreatedAt(new DateTimeImmutable());
         $product->setPriceHT(10);
@@ -104,7 +112,7 @@ class ProductController extends ApiController
     {
         $data = json_decode($request->getContent(),true);
         $product = $this->productRepo->find($id);
-        if(!$product instanceof Product) return new JsonResponse('VA niké ta mere');
+        if(!$product instanceof Product) return new JsonResponse("le produit n'existe pas");
         $product->setName($data["name"]);
         // $product->setPriceHT($data['priceHT']);
         $product->setPriceTTC($data['priceTTC']);
@@ -134,7 +142,7 @@ class ProductController extends ApiController
     }
 
 
-    #[Route('/cake/upload/{id}', name: 'upload_product',methods:['GET'])]
+    #[Route('/cake/upload/', name: 'upload_product',methods:['POST'])]
     public function uploadFile($id,Request $request) 
     {
         $data = $request->getContent();

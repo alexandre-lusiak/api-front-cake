@@ -13,15 +13,16 @@ class File
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['get_file'])]
+    #[Groups(['get_file','post_product','get_products'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['get_file'])]
+    #[Groups(['get_file','post_product','get_products'])]
+
     private ?string $caption = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['get_file'])]
+    #[Groups(['get_file','post_product','get_products'])]
     private ?string $filePath = null;
 
     #[ORM\OneToMany(mappedBy: 'file', targetEntity: Product::class)]

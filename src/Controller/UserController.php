@@ -254,7 +254,7 @@ class UserController extends ApiController
         return $this->setReponse(200,'SEND_MAIL','MAILS SEND',$data,[],$this->serializer);
             //code...
         } catch (\Throwable $th) {
-            return new JsonResponse (400,'SEND_MAIL ERROR');
+            return new JsonResponse ($th);
         }
      
     }

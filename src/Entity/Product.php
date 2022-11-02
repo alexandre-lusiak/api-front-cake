@@ -49,6 +49,7 @@ class Product
     private ?Category $category = null;
 
     #[ORM\ManyToOne(inversedBy: 'products')]
+    #[Groups(['post_product','get_products'])]
     private ?File $file = null;
 
     #[ORM\Column(nullable: true)]
@@ -62,6 +63,9 @@ class Product
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: CakeLike::class)]
     #[Groups(['get_products','get_like'])]
     private Collection $cakeLikes;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $brochureFilename = null;
 
     public function __construct()
     {
@@ -264,5 +268,17 @@ class Product
             }
         }
         return false; 
+    }
+
+    public function getBrochureFilename(): ?string
+    {
+        return $this->brochureFilename;
+    }
+
+    public function setBrochureFilename(?string $brochureFilename): self
+    {
+        $this->brochureFilename = $brochureFilename;
+
+        return $this;
     } 
 }
