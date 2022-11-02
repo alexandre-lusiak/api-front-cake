@@ -12,7 +12,7 @@ class CakeLike
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["get_like","get_user"])]
+    #[Groups(["get_like","get_user",'get_products'])]
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'cakeLikes')]
