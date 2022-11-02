@@ -25,6 +25,8 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Constraints\DateTime as ConstraintsDateTime;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Validator\Constraints\Json;
+
 #[Route("/api")]
 class UserController extends ApiController
 {
@@ -277,14 +279,14 @@ class UserController extends ApiController
      
 
         $email = ( new TemplatedEmail())
-        ->from($emailUser)
-        ->to("contact.front-kick@gmail.com")
-        ->subject('Contact')
-        ->html('mails/comment.twig')
-     
-    ->context([
-       
-    ]);
+        ->from('contact.front-kick@gmail.com')
+        ->to($user->getEmail())
+        ->subject("réinitialisation Mot De passe")
+        ->htmlTemplate('mails/reset-password-mail.html.twig')
+        ->context([
+                    'reset_token'=>$user->getResetToken(),
+                ]);
+    
    
     $mailer->send($email);
    
@@ -293,5 +295,25 @@ class UserController extends ApiController
     }
 
 
-    
+    public function resetpassword($reset_token, UserRepository $userRepo, Request $request,UserPasswordHasherInterface $encoder) 
+    {
+
+        $data = json_decode($request->getContent());
+        $password = $data['pwd'];
+        $confirmemail= $data['confirmPwd'];
+
+        if($confirmemail !== $password) throw new JsonResponse('les mots de passes doivent être identiques');
+        $user = $this->userRepo->findOne(['reset_token' => $reset_token]);
+
+        if(!$user instanceof User) return new JsonResponse("cet utilisateur n'existe pas");
+
+        $encoded = $encoder->hashPassword($user,$password);
+        $user->setPassword($encoded);
+
+        $this->em->persist($user);
+        $this->em->flush ;
+
+        return $this->setReponse(200,'PASSWORD MODIFY','PASSWORD MODIFY',$data,[],$this->serializer);
+
+    }
 }
