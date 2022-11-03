@@ -5,6 +5,8 @@ namespace App\Controller;
 use App\Entity\Adress;
 use App\Entity\User;
 use App\Repository\AdressRepository;
+use App\Repository\CakeLikeRepository;
+use App\Repository\CommentRepository;
 use App\Repository\UserRepository;
 use DateTime;
 use DateTimeImmutable;
@@ -137,7 +139,7 @@ class UserController extends ApiController
         $user->setEmail($email);
         $user->setFirstName($firstName);
         $user->setLastName($lastName);
-        $user->setPassword($lastName);
+        $user->setPassword($user->getPassword());
         $user->setPhone($phone);
 
         $adress = $user->getAdress();
@@ -209,10 +211,29 @@ class UserController extends ApiController
     }
 
     #[Route('/delete/user/{id}', name: 'delete_user', methods:['DELETE']) ] 
-    public function deleteUser($id)
+    public function deleteUser($id,CakeLikeRepository $likeRepo,CommentRepository $commentRepo)
     {
         $user = $this->userRepo->find($id);
+       $likes = $user->getCakeLikes();
+        foreach ($likes as  $like) {
+            $liked = $likeRepo->find($like);
+                 $user->removeCakeLike($liked);
+            
+              $this->em->persist($user);
+              $this->em->flush();
+     
+          }
 
+          $comments = $user->getComments();
+       
+     foreach ($comments as  $comment) {
+        $commented = $commentRepo->find($comment);
+        $user->removeComment($commented);
+      
+          $this->em->persist($user);
+          $this->em->flush();
+ 
+      }
         $this->em->remove($user);
         $this->em->flush();
         return new JsonResponse("L'utilisateur a été supprimé avec succès");
@@ -239,7 +260,7 @@ class UserController extends ApiController
             ->from($emailUser)
             ->to("contact.front-kick@gmail.com")
             ->subject('Contact')
-            ->html('mails/comment.twig')
+            ->htmlTemplate('mails/comment.twig')
          
         ->context([
            "lastName" => $lastName,
@@ -259,16 +280,15 @@ class UserController extends ApiController
      
     }
 
-    #[Route('/forgot/password', name: 'reset', methods:['POST']) ] 
+    #[Route('/forgot/password', name: 'reset_pâss', methods:['POST']) ] 
     public function ForgotPassword(Request $request,UserRepository $userRepo, EntityManagerInterface $em , MailerInterface $mailer ) 
     {
         $data = json_decode($request->getContent(),true);
-
-        $emailUser = $data['user_mail']['email'];
+        $emailUser = $data['email_user'];
 
         $user = $userRepo->findOneByEmail(['email' =>$emailUser]);
 
-        if(!$user) return new JsonResponse("cet utilisateur n'existe pas");
+        if(!$user instanceof  User) return new JsonResponse("cet utilisateur n'existe pas",403);
          
         $user->setResetToken(sha1(uniqid()));
        
@@ -276,44 +296,45 @@ class UserController extends ApiController
 
         $em->flush();
 
-     
-
+       $token = $user->getResetToken();
+        // if($token) return new JsonResponse($token);
         $email = ( new TemplatedEmail())
         ->from('contact.front-kick@gmail.com')
         ->to($user->getEmail())
         ->subject("réinitialisation Mot De passe")
-        ->htmlTemplate('mails/reset-password-mail.html.twig')
+        ->htmlTemplate('mails/resetPassword.twig')
         ->context([
                     'reset_token'=>$user->getResetToken(),
-                ]);
-    
-   
+                ]);    
+       
     $mailer->send($email);
    
-    return $this->setReponse(200,'SEND_MAIL','MAILS SEND',$data,[],$this->serializer);
+    return $this->setReponse(200,'SEND_MAIL','MAILS SEND',$token ,[],$this->serializer);
 
     }
 
-
-    public function resetpassword($reset_token, UserRepository $userRepo, Request $request,UserPasswordHasherInterface $encoder) 
+    #[Route('/reset/password', name: 'reset_pass_form', methods:['POST']) ] 
+    public function resetpassword( UserRepository $userRepo, Request $request,UserPasswordHasherInterface $encoder) 
     {
 
-        $data = json_decode($request->getContent());
-        $password = $data['pwd'];
-        $confirmemail= $data['confirmPwd'];
+        $data = json_decode($request->getContent(),true);
+        $password = $data['password']['password'];
+        $confirmemail= $data['password']['confirmPassword'];
+        $reset_token = $data['password']['reset_token'];
 
-        if($confirmemail !== $password) throw new JsonResponse('les mots de passes doivent être identiques');
-        $user = $this->userRepo->findOne(['reset_token' => $reset_token]);
+        if($confirmemail !== $password) throw new JsonResponse('les mots de passes doivent être identiques',403);
+        $user = $this->userRepo->findOneBy(["resetToken" =>$data['password']['reset_token']]);
 
         if(!$user instanceof User) return new JsonResponse("cet utilisateur n'existe pas");
-
         $encoded = $encoder->hashPassword($user,$password);
         $user->setPassword($encoded);
-
+        $user->setResetToken(null);
+       
         $this->em->persist($user);
-        $this->em->flush ;
 
-        return $this->setReponse(200,'PASSWORD MODIFY','PASSWORD MODIFY',$data,[],$this->serializer);
+        $this->em->flush() ;
+
+        return $this->setReponse(200,'PASSWORD MODIFY','PASSWORD MODIFY',$user->getLastName(),[],$this->serializer);
 
     }
 }

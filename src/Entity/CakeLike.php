@@ -16,12 +16,12 @@ class CakeLike
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'cakeLikes')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     #[Groups(["get_like","get_user"])]
     private ?Product $product = null;
 
     #[ORM\ManyToOne(inversedBy: 'cakeLikes')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     #[Groups(["get_like"])]
     private ?User $user = null;
 

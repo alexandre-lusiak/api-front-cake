@@ -16,7 +16,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['get_user','post_user','post_comment','get_products','get_comment',"get_like"])]
+    #[Groups(['get_user','post_user','post_comment','get_products','get_comment',"get_like",'get_comment'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
@@ -55,6 +55,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?Adress $adress = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class)]
+    #[Groups(['get_user'])]
     private Collection $comments;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: CakeLike::class)]

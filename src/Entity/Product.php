@@ -13,11 +13,11 @@ class Product
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['post_product','get_products','post_comment','get_user','get_like'])]
+    #[Groups(['post_product','get_products','post_comment','get_user','get_like','get_category'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['post_product','get_products',])]
+    #[Groups(['post_product','get_products','get_category'])]
     private ?string $name = null;
 
     #[ORM\Column]
