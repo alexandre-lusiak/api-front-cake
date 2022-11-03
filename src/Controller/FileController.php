@@ -59,22 +59,11 @@ class FileController extends ApiController
                     // ... handle exception if something happens during file upload
                 }
     
-                // updates the 'brochureFilename' property to store the PDF file name
-                // instead of its contents
+              
                 $file->setFilePath($newFilename);
                 $file->setCaption($request->get("caption"));
             }
        
-        //     $file = new File();
-        //     //code...
-        //     $uploadedFile = $request->attributes->get('selectedFile');
-        //     $extension = $uploadedFile->guessExtension();
-        
-        //    $name =  md5(uniqid());
-        //    $fileName = $name.'.'.$extension;
-        //    $uploadedFile->move($this->getParameter('files_directory'), $fileName);
-        //    $file->setFilePath($fileName);
-        //    $file->setCaption($request->get("caption"));
                
            $entityManager->persist($file);
            $entityManager->flush();
@@ -92,33 +81,4 @@ class FileController extends ApiController
 
     }
 
-    
-    // public function uploadFileBase64(Request $request, Base64FileExtractor $base64FileExtractor, EntityManagerInterface $entityManager, SerializerInterface $serializer): Response
-    // {
-    //     $data = json_decode($request->getContent(), true);
-    //     $base64Image =$data['base64Image'];
-    //     $base64Image = $base64FileExtractor->extractBase64String($base64Image);
-    //     $imageFile = new UploadedBase64File($base64Image, "signature");
-    //     $file = new File();
-
-    //     $extension = $imageFile->guessExtension();
-
-    //    $name =  md5(uniqid());
-    //    $fileName = $name .'.'.$extension;
-    //    $imageFile->move($this->getParameter('files_directory'), $fileName);
-    //    $file->setFilePath($fileName);
-    //    $file->setCaption($request->get("caption"));
-
-
-    //    $entityManager->persist($file);
-    //    $entityManager->flush();
-
-    //    $data = $serializer->serialize($file, "json", [
-    //         'groups' => ['get_file']
-    //     ]);
-
-    //     return new Response($data, 201, [
-    //         'Content-Type' => 'application/json'
-    //     ]);
-    // }
 }

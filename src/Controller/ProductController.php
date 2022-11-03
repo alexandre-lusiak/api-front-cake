@@ -95,7 +95,7 @@ class ProductController extends ApiController
 
         $errors->addAll($this->validator->validate($product));
         if(!$errors){
-            return new JsonResponse("Vous ne pouvez pas accèder à cette requête", 200);
+            return new JsonResponse("Vous ne pouvez pas accèder à cette requête", 403);
         }
         if($product) $errors->addAll($this->validator->validate($product));
         
