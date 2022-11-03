@@ -12,6 +12,7 @@ class Comment
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['post_comment',"get_comment",'get_products',"get_user"])]
     private ?int $id = null;
     #[Groups(['post_comment',"get_comment",'get_products'])]
     #[ORM\Column]

@@ -25,7 +25,7 @@ class Receipt
     #[Groups(['get_receipt','post_receipt'])]
     private Collection $ingredient;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 5000)]
     #[Groups(['get_receipt','post_receipt'])]
     private ?string $description = null;
 

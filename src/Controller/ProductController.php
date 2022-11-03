@@ -7,6 +7,7 @@ use App\Entity\File;
 use App\Entity\Product;
 use App\Repository\CakeLikeRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\CommentRepository;
 use App\Repository\FileRepository;
 use App\Repository\ProductRepository;
 use App\Repository\UserRepository;
@@ -108,7 +109,7 @@ class ProductController extends ApiController
     }
     
     #[Route('/updateCake/{id}', name: 'update_product', methods:['PUT'])]
-    public function updateProduct($id,Request $request)
+    public function updateProduct($id,Request $request,FileRepository $fileRepo)
     {
         $data = json_decode($request->getContent(),true);
         $product = $this->productRepo->find($id);
@@ -122,7 +123,11 @@ class ProductController extends ApiController
         $product->setIsActif($data['isActif']);
 
         $category = $this->catRepo->find($data['category']);
-        
+        $file = $fileRepo->find($data['file']); 
+
+        if(!$file instanceof File) return new JsonResponse("Erreur l'image nexiste pas");
+       
+        $product->setFile($file);
         
         $product->setCategory($category);
         $errors = $this->validator->validate($product);
@@ -156,11 +161,30 @@ class ProductController extends ApiController
 
 
     #[Route('/delete/cake/{id}', name: 'delete_product',methods:['DELETE'])]
-    public function deleteCake($id) 
+    public function deleteCake($id, CakeLikeRepository $likeRepo, CommentRepository $commentRepo) 
     {
         $product = $this->productRepo->find($id);
         if(!$product instanceof Product) return new JsonResponse("product n'existe pas");
-        
+     $likes =   $product->getCakeLikes();
+     $comments = $product->getComments();
+       
+     foreach ($comments as  $comment) {
+        $commented = $commentRepo->find($comment);
+             $product->removeComment($commented);
+      
+          $this->em->persist($product);
+          $this->em->flush();
+ 
+      }
+
+     foreach ($likes as  $like) {
+       $liked = $likeRepo->find($like);
+            $product->removeCakeLike($liked);
+     
+         $this->em->persist($product);
+         $this->em->flush();
+
+     }
         $this->em->remove($product);
         $this->em->flush();
 

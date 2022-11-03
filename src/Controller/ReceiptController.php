@@ -94,7 +94,7 @@ class ReceiptController extends ApiController
     public function deleteCake($id,EntityManagerInterface $em,ReceiptRepository $receiptRepo ,SerializerInterface $serializer) 
     {
         $receipt = $receiptRepo->find($id);
-        if(!$receipt instanceof Receipt) return new JsonResponse("la recette n'existe pas");
+        if(!$receipt instanceof Receipt) return new JsonResponse("la recette n'existe pas",401);
         $em->remove($receipt);
         $em->flush();
 

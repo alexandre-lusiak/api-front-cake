@@ -22,13 +22,7 @@ use Symfony\Component\Mailer\MailerInterface;
 #[Route("/api")]
 class CommentController extends ApiController
 {
-    #[Route('/comment', name: 'app_comment')]
-    public function getComment(): Response
-    {
-        return $this->render('comment/index.html.twig', [
-            'controller_name' => 'CommentController',
-        ]);
-       }
+
 
 
 
@@ -61,12 +55,45 @@ class CommentController extends ApiController
 
 
     #[Route('/comment/cake/{id}', name: 'get_comment')]
-    public function getCategories($id,ProductRepository $productRepo,SerializerInterface $serializer) 
+    public function getCommentByProduct($id,ProductRepository $productRepo,SerializerInterface $serializer) 
     {
 
         $product = $productRepo->find($id);
       $comment =  $product->getComments();
 
         return $this->setReponse('200','GET ALL Category','GET Categories  SUCESS',$comment,["get_comment"],$serializer);
+    }
+
+
+    #[Route('/comment', name: 'get_comments',methods:['GET'])]
+    public function getComments(CommentRepository $commentRepo,SerializerInterface $serializer) 
+    {
+
+        $comments = $commentRepo->findAll();
+      
+        return $this->setReponse('200','GET ALL Category','GET Categories  SUCESS',$comments,["get_comment"],$serializer);
+    }
+
+    #[Route('/comment/{id}', name: 'get_comment_i' , methods:['GET'])]
+    public function getCommentId($id,CommentRepository $commentRepo,SerializerInterface $serializer) 
+    {
+
+      $comment =  $commentRepo->find($id);
+    if(!$comment instanceof Comment ) return new JsonResponse("Ce commentaire n'existe pas") ;
+
+        return $this->setReponse('200','GET ALL Category','GET Categories  SUCESS',$comment,["get_comment"],$serializer);
+    }
+
+    
+    #[Route('/comment/delete/{id}', name: 'detele_comment', methods:['DELETE'])]
+    public function deleteComment($id,CommentRepository $commentRepo,SerializerInterface $serializer,EntityManagerInterface $em) 
+    {
+
+      $comment =  $commentRepo->find($id);
+    if(!$comment instanceof Comment ) return new JsonResponse("Ce commentaire n'existe pas",401) ;
+        $em->remove($comment);
+        $em->flush();
+
+        return $this->setReponse('200','DELETE COMMENT','DELETE comment  SUCESS',$comment,["get_comment"],$serializer);
     }
 }
