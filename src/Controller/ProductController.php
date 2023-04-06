@@ -42,9 +42,6 @@ class ProductController extends ApiController
         $this->catRepo=$catRepo;
      }
 
-
-
-
     #[Route('/cakes', name: 'app_product',methods:['GET'])]
     public function getProducts() 
     {
@@ -88,11 +85,9 @@ class ProductController extends ApiController
         $product->setIsActif($data['isActif']);
 
         $category = $this->catRepo->find($data['category']);
-        
         $product->setCategory($category);
 
         $errors = $this->validator->validate($product);
-
         $errors->addAll($this->validator->validate($product));
         if(!$errors){
             return new JsonResponse("Vous ne pouvez pas accèder à cette requête", 403);
@@ -105,7 +100,7 @@ class ProductController extends ApiController
         $this->em->flush();
 
 
-        return $this->setReponse('200','POST Products ','POST USER SUCESS',$product,['post_product'],$this->serializer);
+        return $this->setReponse('200','POST Products ','POST Product SUCESS',$product,['post_product'],$this->serializer);
     }
     
     #[Route('/updateCake/{id}', name: 'update_product', methods:['PUT'])]
@@ -115,9 +110,7 @@ class ProductController extends ApiController
         $product = $this->productRepo->find($id);
         if(!$product instanceof Product) return new JsonResponse("le produit n'existe pas");
         $product->setName($data["name"]);
-        // $product->setPriceHT($data['priceHT']);
         $product->setPriceTTC($data['priceTTC']);
-        // $product->setTva($data['tva']);
         $product->setNbPerson($data['nbPerson']);
         $product->setWeight($data['weight']);
         $product->setIsActif($data['isActif']);
@@ -126,9 +119,7 @@ class ProductController extends ApiController
         $file = $fileRepo->find($data['file']); 
 
         if(!$file instanceof File) return new JsonResponse("Erreur l'image nexiste pas");
-       
         $product->setFile($file);
-        
         $product->setCategory($category);
         $errors = $this->validator->validate($product);
         $errors->addAll($this->validator->validate($product));
@@ -142,11 +133,42 @@ class ProductController extends ApiController
         $this->em->persist($product);
         $this->em->flush();
 
-        return $this->setReponse('200','PUT Products ','Put cake SUCESS',$product,['post_product'],$this->serializer);
+        return $this->setReponse('200','PUT Products ','Put Product SUCESS',$product,['post_product'],$this->serializer);
         
     }
 
+    
+    #[Route('/delete/cake/{id}', name: 'delete_product',methods:['DELETE'])]
+    public function deleteCake($id, CakeLikeRepository $likeRepo, CommentRepository $commentRepo) 
+    {
+        $product = $this->productRepo->find($id);
+        if(!$product instanceof Product) return new JsonResponse("product n'existe pas");
+        $likes =   $product->getCakeLikes();
+        $comments = $product->getComments();
+        
+        foreach ($comments as  $comment) {
+            $commented = $commentRepo->find($comment);
+            $product->removeComment($commented);
+            
+            $this->em->persist($product);
+            $this->em->flush();
+            
+        }
 
+        foreach ($likes as  $like) {
+            $liked = $likeRepo->find($like);
+            $product->removeCakeLike($liked);
+            
+            $this->em->persist($product);
+            $this->em->flush();
+
+     }
+        $this->em->remove($product);
+        $this->em->flush();
+        
+        return $this->setReponse('200','delete  Product','Delete product  SUCESS',$product,["get_products"],$this->serializer);
+    }
+    
     #[Route('/cake/upload/', name: 'upload_product',methods:['POST'])]
     public function uploadFile($id,Request $request) 
     {
@@ -157,38 +179,6 @@ class ProductController extends ApiController
         if(!$product instanceof Product) return new JsonResponse("Le produit n'existe pas");
         $product->setFile($file);
         return $this->setReponse('200', 'GET  Product','GET product  SUCESS',$product,["get_products"],$this->serializer);
-    }
-
-
-    #[Route('/delete/cake/{id}', name: 'delete_product',methods:['DELETE'])]
-    public function deleteCake($id, CakeLikeRepository $likeRepo, CommentRepository $commentRepo) 
-    {
-        $product = $this->productRepo->find($id);
-        if(!$product instanceof Product) return new JsonResponse("product n'existe pas");
-     $likes =   $product->getCakeLikes();
-     $comments = $product->getComments();
-       
-     foreach ($comments as  $comment) {
-        $commented = $commentRepo->find($comment);
-             $product->removeComment($commented);
-      
-          $this->em->persist($product);
-          $this->em->flush();
- 
-      }
-
-     foreach ($likes as  $like) {
-       $liked = $likeRepo->find($like);
-            $product->removeCakeLike($liked);
-     
-         $this->em->persist($product);
-         $this->em->flush();
-
-     }
-        $this->em->remove($product);
-        $this->em->flush();
-
-        return $this->setReponse('200','delete  Product','Delete product  SUCESS',$product,["get_products"],$this->serializer);
     }
 
     #[Route('/user/like/{id}', name: 'like_product',methods:['POST'])]
